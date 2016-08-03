@@ -44,7 +44,7 @@ public class BleService extends Service {
 
         @Override
         public void handleMessage(Message msg) {
-
+            //拿到父类BleService的引用，以便访问父类的成员变量
             BleService service = mService.get();
             if (service != null){
                 switch (msg.what){
