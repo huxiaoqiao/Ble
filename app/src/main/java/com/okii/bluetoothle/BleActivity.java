@@ -1,7 +1,9 @@
 package com.okii.bluetoothle;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,6 +22,8 @@ public class BleActivity extends AppCompatActivity {
     private final Messenger mMessenger;
     private Intent mServiceIntent;
     private Messenger mService = null;
+    private final int ENABLE_BT = 1;
+
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -101,4 +105,38 @@ public class BleActivity extends AppCompatActivity {
         }
     }
 
+    private void enableBluetooth(){
+        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableBtIntent,ENABLE_BT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == ENABLE_BT){
+            if (resultCode == RESULT_OK){
+                //蓝牙连接，继续
+                startScan();
+            }else {
+                finish();
+            }
+        }else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+
+    }
+
+    private void startScan(){
+        //TODO: Do something
+
+        Message msg = Message.obtain(null,BleService.MSG_START_SCAN);
+        if (msg != null){
+            try {
+                mService.send(msg);
+            } catch (RemoteException e) {
+                Log.w(TAG,"Lost connection to service",e);
+                unbindService(mConnection);
+            }
+        }
+    }
 }
